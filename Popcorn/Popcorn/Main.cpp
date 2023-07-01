@@ -12,6 +12,13 @@ WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки за�
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
 
 // Мои глобальные переменные
+const int Global_scale = 3;
+const int Brick_Width = 15;
+const int Brick_Height = 7;
+const int Cell_Width = 16;
+const int Cell_Height = 8;
+const int Level_X_Offest = 8;
+const int Level_Y_Offest = 6;
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -106,8 +113,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    RECT window_rect;
    window_rect.left = 0;
    window_rect.top = 0;
-   window_rect.right = 320 * 3;
-   window_rect.bottom = 200 * 3;
+   window_rect.right = 320 * Global_scale;
+   window_rect.bottom = 200 * Global_scale;
 
    AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, TRUE);
 
@@ -125,7 +132,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 //Рисуем кирпичики
-void Draw_Brick(HDC hdc, bool is_blue, int x, int y)
+void Draw_Brick(HDC hdc, int x, int y, bool is_blue)
 {
     HBRUSH brush ;
     HPEN pen;
@@ -144,7 +151,7 @@ void Draw_Brick(HDC hdc, bool is_blue, int x, int y)
 
     SelectObject(hdc, brush);
     SelectObject(hdc, pen);
-    Rectangle(hdc, x * 3, y * 3, (x + 15) * 3, (y + 7) * 3);
+    Rectangle(hdc, x * Global_scale, y * Global_scale, (x + Brick_Width) * Global_scale, (y + Brick_Height) * Global_scale);
 }
 
 
@@ -152,8 +159,17 @@ void Draw_Brick(HDC hdc, bool is_blue, int x, int y)
 //Отрисовка экрана игры
 void Draw_Frame(HDC hdc)
 {
-    Draw_Brick(hdc, true, 8, 6);
-    Draw_Brick(hdc, false, 8, 6 + 8);
+    int i, j;
+
+    for (i = 0; i < 14; i++)
+    {
+        for (j = 0; j < 12; j++)
+        {
+            Draw_Brick(hdc, Level_X_Offest + j * Cell_Width, Level_Y_Offest + i * Cell_Height, true);
+        }
+    }
+
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
