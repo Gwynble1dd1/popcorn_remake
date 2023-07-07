@@ -19,6 +19,36 @@ const int Cell_Width = 16;
 const int Cell_Height = 8;
 const int Level_X_Offest = 8;
 const int Level_Y_Offest = 6;
+// Объявляем кисти
+HBRUSH Brick_Red_Brush, Brick_Blue_Brush;
+HPEN Brick_Red_Pen, Brick_Blue_Pen;
+
+//Магические числа в коллекцию
+enum EBrick_Type
+{
+    EBT_None, 
+    EBT_Red,
+    EBT_Blue
+};
+
+// Объявляем уровень
+int Level_01[14][12] =
+{
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+};
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -93,8 +123,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
     return RegisterClassExW(&wcex);
 }
-//-----------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------
+void Init()
+{
+    Brick_Blue_Pen = CreatePen(PS_SOLID, 0, RGB(85, 255, 255));
+    Brick_Blue_Brush = CreateSolidBrush(RGB(85, 255, 255));
+    Brick_Red_Pen = CreatePen(PS_SOLID, 0, RGB(255, 85, 255));
+    Brick_Red_Brush = CreateSolidBrush(RGB(255, 85, 255));
+}
 
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
 //
 //   ФУНКЦИЯ: InitInstance(HINSTANCE, int)
 //
@@ -115,7 +154,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    window_rect.top = 0;
    window_rect.right = 320 * Global_scale;
    window_rect.bottom = 200 * Global_scale;
-
+   Init();
    AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, TRUE);
 
 
@@ -132,22 +171,27 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 //Рисуем кирпичики
-void Draw_Brick(HDC hdc, int x, int y, bool is_blue)
+void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 {
-    HBRUSH brush ;
+    HBRUSH brush;
     HPEN pen;
-    if (is_blue)
-    {
-        pen = CreatePen(PS_SOLID, 0, RGB(85, 255, 255));
-        brush = CreateSolidBrush(RGB(85, 255, 255));
 
-    }
-    else
+    switch (brick_type)
     {
-        pen = CreatePen(PS_SOLID, 0, RGB(255, 85, 255));
-        brush = CreateSolidBrush(RGB(255, 85, 255));
-
+    case EBT_None:
+        return;
+    case EBT_Blue:
+        pen = Brick_Blue_Pen;
+        brush = Brick_Blue_Brush;
+        break;
+    case EBT_Red:
+        pen = Brick_Red_Pen;
+        brush = Brick_Red_Brush;
+        break;
+    default:
+        return;
     }
+
 
     SelectObject(hdc, brush);
     SelectObject(hdc, pen);
@@ -162,12 +206,8 @@ void Draw_Frame(HDC hdc)
     int i, j;
 
     for (i = 0; i < 14; i++)
-    {
         for (j = 0; j < 12; j++)
-        {
-            Draw_Brick(hdc, Level_X_Offest + j * Cell_Width, Level_Y_Offest + i * Cell_Height, true);
-        }
-    }
+            Draw_Brick(hdc, Level_X_Offest + j * Cell_Width, Level_Y_Offest + i * Cell_Height, (EBrick_Type)Level_01[i][j]);
 
 
 }
