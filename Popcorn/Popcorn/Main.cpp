@@ -2,7 +2,7 @@
 //
 
 #include "framework.h"
-#include "main.h"
+#include "Main.h"
 
 #define MAX_LOADSTRING 100
 
@@ -11,6 +11,7 @@ HINSTANCE hInst;                                // текущий экземпл
 WCHAR szTitle[MAX_LOADSTRING];                  // Текст строки заголовка
 WCHAR szWindowClass[MAX_LOADSTRING];            // имя класса главного окна
 
+<<<<<<< HEAD
 enum EBrick_Type //создание коллекции начиная с нуля
 {
    EBT_None,  //0
@@ -80,6 +81,8 @@ char Level_01[14][12] =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
+=======
+>>>>>>> 638149ae4a372b3974d6455fa3e97af80118aa22
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -176,15 +179,7 @@ void Init()
 //        создается и выводится главное окно программы.
 //
 //-----------------------------------------------------------------------------------------------------------------------------
-//Настройка игры т.е. инициализация
-void Init()
-{
-    Brick_Red_Pen = CreatePen(PS_SOLID, 0, RGB(255, 85, 85));
-    Brick_Red_Brush = CreateSolidBrush(RGB(255, 85, 85));
 
-    Brick_Blue_Pen = CreatePen(PS_SOLID, 0, RGB(85, 255, 255));
-    Brick_Blue_Brush = CreateSolidBrush(RGB(85, 255, 255));
-}
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    Init();
@@ -193,9 +188,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    RECT window_rect;
    window_rect.left = 0;
    window_rect.top = 0;
+<<<<<<< HEAD
    window_rect.right = 320 * Global_scale;
    window_rect.bottom = 200 * Global_scale;
    Init();
+=======
+   window_rect.right = 320 * 3;
+   window_rect.bottom = 200 * 3;
+
+>>>>>>> 638149ae4a372b3974d6455fa3e97af80118aa22
    AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, TRUE);
 
 
@@ -211,6 +212,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 //Рисуем кирпичики
 void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
 {
@@ -282,6 +284,8 @@ void Draw_Frame(HDC hdc)
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
+=======
+>>>>>>> 638149ae4a372b3974d6455fa3e97af80118aa22
 //
 //  ФУНКЦИЯ: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
