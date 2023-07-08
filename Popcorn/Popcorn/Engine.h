@@ -4,4 +4,3 @@
 
 void Init();
 void Draw_Frame(HDC hdc);
-
