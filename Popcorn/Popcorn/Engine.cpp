@@ -1,4 +1,7 @@
 ﻿#include "Engine.h"
+#define _USE_MATH_DEFINES
+#include "math.h"
+
 //-----------------------------------------------------------------------------------------------------------------------
 enum EBrick_Type //создание коллекции начиная с нуля
 {
@@ -89,7 +92,32 @@ void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
     SelectObject(hdc, pen);
     RoundRect(hdc, x * Global_scale, y * Global_scale, (x + Brick_Width) * Global_scale, (y + Brick_Height) * Global_scale, 2 * Global_scale, 2 * Global_scale);
 }
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//Отрисовка падающего кирпича
+void Draw_Brick_Letter(HDC hdc,int x, int y, int rotation_step)
+{
+    double rotation_angle = 2.0 * M_PI /16 * (double)rotation_step;  // Преобразование шага в угол
+    XFORM xform, old_xform;
 
+    SetGraphicsMode(hdc, GM_ADVANCED);
+
+    xform.eM11 = 1.0f;
+    xform.eM12 = 0.0f;
+    xform.eM21 = 0.0f;
+    xform.eM22 = (float)cos(rotation_angle);
+    xform.eDx = (float)x;
+    xform.eDy = (float)y;
+    GetWorldTransform(hdc, &old_xform);
+    SetWorldTransform(hdc, &xform);
+
+    SelectObject(hdc, Brick_Blue_Pen);
+    SelectObject(hdc, Brick_Blue_Brush);
+
+
+    Rectangle(hdc, 0, 0, 15 * Global_scale, 7 * Global_scale);
+
+    SetWorldTransform(hdc, &old_xform);
+}
 //-----------------------------------------------------------------------------------------------------------------------------------------
 //Отрисовка всех кирпичей на уровне
 void Draw_Level(HDC hdc)
@@ -119,9 +147,11 @@ void Draw_Platform(HDC hdc,int x,int y)
     Arc(hdc, (x + 1) * Global_scale, (y + 1) * Global_scale, (x + Circle_Size - 1) * Global_scale, (y + Circle_Size - 1) * Global_scale,
         (x + 1 + 1) * Global_scale, (y + 1) * Global_scale, (x + 1) * Global_scale, (y + 1 + 2) * Global_scale);
 
+
     // 3. Рисуем среднюю платформу 
     SelectObject(hdc, Platform_Inner_Brush);
     SelectObject(hdc, Platform_Inner_Pen);
+
     RoundRect(hdc, (x + 4) * Global_scale, (y + 1) * Global_scale, (x + 4 + Inner_Width - 1) * Global_scale, (y + 1 + 5) * Global_scale, 3 * Global_scale, 3 * Global_scale);
 
 }
@@ -131,9 +161,13 @@ void Draw_Platform(HDC hdc,int x,int y)
 void Draw_Frame(HDC hdc)
 {
 
+    //Draw_Level(hdc);
+    //Draw_Platform(hdc, 50,100);
+    int i;
+    for (i = 0; i < 16; i++)
+        Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 100, i);
+ 
 
-    Draw_Level(hdc);
-    Draw_Platform(hdc, 50,100);
 }
 //-----------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------
