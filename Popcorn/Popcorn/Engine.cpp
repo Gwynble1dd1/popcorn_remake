@@ -98,6 +98,8 @@ void Draw_Brick_Letter(HDC hdc,int x, int y, int rotation_step)
 {
     double rotation_angle = 2.0 * M_PI /16 * (double)rotation_step;  // Преобразование шага в угол
     XFORM xform, old_xform;
+    int brick_half_height = Brick_Height * Global_scale / 2;
+    int back_part_offset;
 
     SetGraphicsMode(hdc, GM_ADVANCED);
 
@@ -106,17 +108,23 @@ void Draw_Brick_Letter(HDC hdc,int x, int y, int rotation_step)
     xform.eM21 = 0.0f;
     xform.eM22 = (float)cos(rotation_angle);
     xform.eDx = (float)x;
-    xform.eDy = (float)y;
+    xform.eDy = (float)y + (float)(brick_half_height);
     GetWorldTransform(hdc, &old_xform);
     SetWorldTransform(hdc, &xform);
 
+    SelectObject(hdc, Brick_Red_Pen);
+    SelectObject(hdc, Brick_Red_Brush);
+
+    float offset = 3.0f * (1.0f - fabs(xform.eM22)) * Global_scale;
+    Rectangle(hdc, 0, -brick_half_height - (int)offset, Brick_Width * Global_scale, brick_half_height - (int)offset);
+
+
     SelectObject(hdc, Brick_Blue_Pen);
     SelectObject(hdc, Brick_Blue_Brush);
-
-
-    Rectangle(hdc, 0, 0, 15 * Global_scale, 7 * Global_scale);
+    Rectangle(hdc, 0, -brick_half_height, Brick_Width * Global_scale, brick_half_height);
 
     SetWorldTransform(hdc, &old_xform);
+    
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
 //Отрисовка всех кирпичей на уровне
