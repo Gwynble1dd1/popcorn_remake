@@ -7,7 +7,7 @@ enum EBrick_Type //создание коллекции начиная с нул�
 {
     EBT_None,  //0
     EBT_Red,   //1
-    RBT_Blue   //2
+    EBT_Blue   //2
 };
 //Для создания кисти и ручки
 HPEN Brick_Red_Pen, Brick_Blue_Pen, Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen;
@@ -80,7 +80,7 @@ void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
         pen = Brick_Red_Pen;
         brush = Brick_Red_Brush;
         break;
-    case RBT_Blue:
+    case EBT_Blue:
         pen = Brick_Blue_Pen;
         brush = Brick_Blue_Brush;
         break;
@@ -93,25 +93,81 @@ void Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
     RoundRect(hdc, x * Global_scale, y * Global_scale, (x + Brick_Width) * Global_scale, (y + Brick_Height) * Global_scale, 2 * Global_scale, 2 * Global_scale);
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
-//Отрисовка падающего кирпича
-void Draw_Brick_Letter(HDC hdc,int x, int y, int rotation_step)
+//Выбираем цвет кирпича
+void Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HPEN &back_pen, HBRUSH &front_brush, HBRUSH &back_brush)
 {
-    double rotation_angle = 2.0 * M_PI /16 * (double)rotation_step;  // Преобразование шага в угол
+    if (is_switch_color)
+    {
+        front_pen = Brick_Red_Pen;
+        front_brush = Brick_Red_Brush;
+
+        back_pen = Brick_Blue_Pen;
+        back_brush = Brick_Blue_Brush;
+    }
+    else
+    {
+        front_pen = Brick_Blue_Pen;
+        front_brush = Brick_Blue_Brush;
+
+        back_pen = Brick_Red_Pen;
+        back_brush = Brick_Red_Brush;
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//Отрисовка падающего кирпича
+void Draw_Brick_Letter(HDC hdc,int x, int y, EBrick_Type brick_type, int rotation_step)
+{
+    bool switch_color;
+    double rotation_angle;
     double offset;
     XFORM xform, old_xform;
     int brick_half_height = Brick_Height * Global_scale / 2;
     int back_part_offset;
+    HPEN front_pen, back_pen;
+    HBRUSH front_brush, back_brush;
 
-    if (rotation_step == 4 | rotation_step == 12)
+
+    if (!(brick_type == EBT_Blue || brick_type == EBT_Red))
+        return;  // Либо синие, либо красные
+
+    // Корректрировка шага вращения и угла поворота
+    rotation_step = rotation_step % 16;
+
+    if (rotation_step < 8)
+        rotation_angle = 2.0 * M_PI / 16 * (double)rotation_step;  // Преобразование шага в угол
+    else
+        rotation_angle = 2.0 * M_PI / 16 * (double)(8 - rotation_step);
+
+    if (rotation_step > 4 && rotation_step <= 12)
+    {
+        if (brick_type == EBT_Blue)
+            switch_color = false;
+        else
+            switch_color = true;
+    }
+
+    else
+    {
+        if (brick_type == EBT_Red)
+            switch_color = true;
+        else
+            switch_color = false;
+    }
+
+    Set_Brick_Letter_Colors(switch_color, front_pen, back_pen, front_brush, back_brush);
+
+
+    if (rotation_step == 4 || rotation_step == 12)
     {
         // Выводим фон
-        SelectObject(hdc, Brick_Red_Pen);
-        SelectObject(hdc, Brick_Red_Brush);
+        SelectObject(hdc, back_pen);
+        SelectObject(hdc, back_brush);
 
         Rectangle(hdc, x, y + brick_half_height - Global_scale, x + Brick_Width * Global_scale, y + brick_half_height);
         // Выводим передний план
-        SelectObject(hdc, Brick_Blue_Pen);
-        SelectObject(hdc, Brick_Blue_Brush);
+        SelectObject(hdc, front_pen);
+        SelectObject(hdc, front_brush);
 
         Rectangle(hdc, x, y + brick_half_height, x + Brick_Width * Global_scale, y + brick_half_height + Global_scale - 1);
 
@@ -130,16 +186,16 @@ void Draw_Brick_Letter(HDC hdc,int x, int y, int rotation_step)
         GetWorldTransform(hdc, &old_xform);
         SetWorldTransform(hdc, &xform);
         // Выводим фон
-        SelectObject(hdc, Brick_Red_Pen);
-        SelectObject(hdc, Brick_Red_Brush);
+        SelectObject(hdc, back_pen);
+        SelectObject(hdc, back_brush);
 
         offset = 3.0 * (1.0 - fabs(xform.eM22)) * Global_scale;
         back_part_offset = (int)round(offset);
         Rectangle(hdc, 0, -brick_half_height - back_part_offset, Brick_Width * Global_scale, brick_half_height - back_part_offset);
 
         // Выводим передний план
-        SelectObject(hdc, Brick_Blue_Pen);
-        SelectObject(hdc, Brick_Blue_Brush);
+        SelectObject(hdc, front_pen);
+        SelectObject(hdc, front_brush);
 
         Rectangle(hdc, 0, -brick_half_height, Brick_Width * Global_scale, brick_half_height);
 
@@ -193,9 +249,10 @@ void Draw_Frame(HDC hdc)
     //Draw_Platform(hdc, 50,100);
     int i;
     for (i = 0; i < 16; i++)
-        Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 100, i);
- 
+    {
+        Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 100, EBT_Blue, i);
+        Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 130, EBT_Red, i);
+    }
 
 }
-//-----------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------
