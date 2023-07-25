@@ -3,21 +3,25 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------------------------------------------------
-enum ELetter_Type //создание коллекции начиная с нуля
+enum ELetter_Type //создание коллекции падающих букв 
 {
     ELT_None,
     ELT_O
 };
 
-enum EBrick_Type //создание коллекции начиная с нуля
+enum EBrick_Type //создание коллекции типов кирпичей
 {
     EBT_None,  //0
     EBT_Red,   //1
     EBT_Blue   //2
 };
+
+
+HWND Hwnd;
+
 //Для создания кисти и ручки
-HPEN Brick_Red_Pen, Brick_Blue_Pen, Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen, Letter_Pen;
-HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Platform_Circle_Brush, Platform_Inner_Brush;
+HPEN Brick_Red_Pen, Brick_Blue_Pen, Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen, Letter_Pen, BG_Pen;
+HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Platform_Circle_Brush, Platform_Inner_Brush, BG_Brush;
 
 
 // Мои глобальные переменные
@@ -28,9 +32,19 @@ const int Cell_Width = 16;
 const int Cell_Height = 8;
 const int Level_X_Offest = 8;
 const int Level_Y_Offest = 6;
+const int Level_Widtht = 14;    // Ширина уровня в ячейках
+const int Level_Height = 12;    // Высота уровня в ячейках
+const int Platform_Y_Pos = 185;
 const int Circle_Size = 7;
+const int Platform_Height = 7;
 
 int Inner_Width = 21;
+int Platform_X_Pos = 0;
+int Platform_X_Step = Global_scale * 2;
+int Platform_Width = 28;
+
+RECT Platform_Rect, Prev_Platform_Rect;
+RECT Level_Rect;
 
 //Объявление массива уровня
 char Level_01[14][12] =
@@ -58,17 +72,43 @@ void Create_Pen_Brush(unsigned char r, unsigned char g, unsigned char b, HPEN &p
     brush = CreateSolidBrush(RGB(r, g, b));
 
 }
+//-----------------------------------------------------------------------------------------------------------------------
+//Перерисовка области с платформой для ее движения
+void Redraw_Platform()
+{
+    Prev_Platform_Rect = Platform_Rect;
 
+
+    Platform_Rect.left = (Platform_X_Pos + Level_X_Offest) * Global_scale;
+    Platform_Rect.top = Platform_Y_Pos * Global_scale;
+    Platform_Rect.right = Platform_Rect.left + Platform_Width * Global_scale;
+    Platform_Rect.bottom = Platform_Rect.top + Platform_Height * Global_scale;
+
+    InvalidateRect(Hwnd, &Prev_Platform_Rect, FALSE);
+    InvalidateRect(Hwnd, &Platform_Rect, FALSE);
+}
 //-----------------------------------------------------------------------------------------------------------------------
 //Настройка игры т.е. инициализация
-void Init()
+void Init_Engine(HWND hwnd)
 {
+    Hwnd = hwnd;
+
     Highlight_Pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
     Letter_Pen = CreatePen(PS_SOLID, Global_scale, RGB(255, 255, 255));
+
     Create_Pen_Brush(255, 85, 85, Brick_Red_Pen, Brick_Red_Brush);
     Create_Pen_Brush(85, 255, 255, Brick_Blue_Pen, Brick_Blue_Brush);
+    Create_Pen_Brush(15, 63, 31, BG_Pen, BG_Brush);
     Create_Pen_Brush(150, 0, 0, Platform_Circle_Pen, Platform_Circle_Brush);
     Create_Pen_Brush(0, 128, 192, Platform_Inner_Pen, Platform_Inner_Brush);
+
+    Level_Rect.left = Level_X_Offest * Global_scale;
+    Level_Rect.top = Level_Y_Offest * Global_scale;
+    Level_Rect.right = Level_Rect.left + Cell_Width * Level_Widtht * Global_scale;
+    Level_Rect.bottom = Level_Rect.left + Cell_Height * Level_Height * Global_scale;
+
+    Redraw_Platform();
+
 
 }
 //-----------------------------------------------------------------------------------------------------------------------
@@ -232,7 +272,10 @@ void Draw_Level(HDC hdc)
 //Рисуем платформу
 void Draw_Platform(HDC hdc,int x,int y)
 {
+    SelectObject(hdc, BG_Brush);
+    SelectObject(hdc, BG_Pen);
 
+    Rectangle(hdc, Prev_Platform_Rect.left, Prev_Platform_Rect.top, Prev_Platform_Rect.right, Prev_Platform_Rect.bottom);
 
     // 1. Рисуем боковые шарики
     SelectObject(hdc, Platform_Circle_Brush);
@@ -258,17 +301,47 @@ void Draw_Platform(HDC hdc,int x,int y)
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 //Отрисовка экрана игры
-void Draw_Frame(HDC hdc)
+void Draw_Frame(HDC hdc, RECT &paint_area)
 {
+    RECT intersection_rect;
 
-    //Draw_Level(hdc);
-    //Draw_Platform(hdc, 50,100);
-    int i;
-    for (i = 0; i < 16; i++)
+
+    if (IntersectRect(&intersection_rect, &paint_area, &Level_Rect) )
+        Draw_Level(hdc);
+
+    if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+        Draw_Platform(hdc, Platform_X_Pos + Level_X_Offest, Platform_Y_Pos);
+    
+    //int i;
+    //for (i = 0; i < 16; i++)
+    //{
+    //    Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 100, EBT_Blue, ELT_O, i);
+    //    Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 130, EBT_Red, ELT_None, i);
+    //}
+
+}
+
+//-----------------------------------------------------------------------------------------------------------------------
+//Реакция на нажатие кнопки
+int On_Key_Down(EKey_Type key_type)
+{
+    switch (key_type)
     {
-        Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 100, EBT_Blue, ELT_O, i);
-        Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 130, EBT_Red, ELT_None, i);
+    case EKT_Left:
+        Platform_X_Pos -= Platform_X_Step;
+        Redraw_Platform();
+        break;
+
+    case EKT_Right:
+        Platform_X_Pos += Platform_X_Step;
+        Redraw_Platform();
+        break;
+
+    case EKT_Space:
+        break;
+
     }
 
+    return 0;
 }
 //-----------------------------------------------------------------------------------------------------------------------

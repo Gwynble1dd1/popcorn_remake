@@ -101,7 +101,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   Init();
+
    hInst = hInstance; // Сохранить маркер экземпляра в глобальной переменной
 
    RECT window_rect;
@@ -118,6 +118,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    if (hWnd == 0)
       return FALSE;
+
+   Init_Engine(hWnd);
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -139,8 +141,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-
-
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -165,7 +165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Добавьте сюда любой код прорисовки, использующий HDC...
-            Draw_Frame(hdc);
+            Draw_Frame(hdc, ps.rcPaint);
             EndPaint(hWnd, &ps);
         }
         break;
@@ -173,6 +173,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_DESTROY:
         PostQuitMessage(0);
+        break;
+
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case VK_LEFT:
+            return On_Key_Down(EKT_Left);
+        case VK_RIGHT:
+            return On_Key_Down(EKT_Right);
+        case VK_SPACE:
+            return On_Key_Down(EKT_Space);
+        }
         break;
 
 
