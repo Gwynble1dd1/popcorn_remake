@@ -402,7 +402,7 @@ void Move_Ball()
 
     if (next_x_pos > Max_X_Pos)
     {
-        next_x_pos = Max_X_Pos -(next_x_pos - Max_X_Pos);
+        next_x_pos = Max_X_Pos - (next_x_pos - Max_X_Pos);       
         Ball_Direction = M_PI - Ball_Direction;
     }
 
@@ -430,7 +430,6 @@ void Move_Ball()
 //Обработка события по таймеру
 int On_Timer()
 {
-
     Move_Ball();
 
     return 0;
