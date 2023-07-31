@@ -20,8 +20,8 @@ enum EBrick_Type //создание коллекции типов кирпиче
 HWND Hwnd;
 
 //Для создания кисти и ручки
-HPEN Brick_Red_Pen, Brick_Blue_Pen, Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen, Letter_Pen, BG_Pen, Ball_Pen;
-HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Platform_Circle_Brush, Platform_Inner_Brush, BG_Brush, Ball_Brush;
+HPEN Brick_Red_Pen, Brick_Blue_Pen, Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen, Letter_Pen, BG_Pen, Ball_Pen, Border_Blue_Pen, Border_White_Pen;
+HBRUSH Brick_Red_Brush, Brick_Blue_Brush, Platform_Circle_Brush, Platform_Inner_Brush, BG_Brush, Ball_Brush, Border_Blue_Brush, Border_White_Brush;
 
 
 // Мои глобальные переменные
@@ -112,6 +112,8 @@ void Init_Engine(HWND hwnd)
     Create_Pen_Brush(150, 0, 0, Platform_Circle_Pen, Platform_Circle_Brush);
     Create_Pen_Brush(0, 128, 192, Platform_Inner_Pen, Platform_Inner_Brush);
     Create_Pen_Brush(255, 255, 255, Ball_Pen, Ball_Brush);
+    Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
+    Create_Pen_Brush(85, 255, 255, Border_Blue_Pen, Border_Blue_Brush);
 
     Level_Rect.left = Level_X_Offest * Global_scale;
     Level_Rect.top = Level_Y_Offest * Global_scale;
@@ -347,8 +349,26 @@ void Draw_Frame(HDC hdc, RECT &paint_area)
         Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 260, EBT_Blue, ELT_O, i);
         Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 290, EBT_Red, ELT_None, i);
     }*/
+
     if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
         Draw_ball(hdc);
+    // Основная линия
+    SelectObject(hdc, Border_Blue_Brush);
+    SelectObject(hdc, Border_Blue_Pen);
+
+    Rectangle(hdc, 1 * Global_scale, 0 * Global_scale, 4 * Global_scale, 4 * Global_scale);
+
+    // Леваая кайма
+    SelectObject(hdc, Border_White_Brush);
+    SelectObject(hdc, Border_White_Pen);
+
+    Rectangle(hdc, 0 * Global_scale, 0 * Global_scale, 1 * Global_scale, 4 * Global_scale);
+
+    // Перфорация
+    SelectObject(hdc, BG_Brush);
+    SelectObject(hdc, BG_Pen);
+
+    Rectangle(hdc, 2 * Global_scale, 1 * Global_scale, 3 * Global_scale, 2 * Global_scale);
 
 }
 
