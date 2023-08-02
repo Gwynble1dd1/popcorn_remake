@@ -32,17 +32,19 @@ const int Cell_Width = 16;
 const int Cell_Height = 8;
 const int Level_X_Offest = 8;
 const int Level_Y_Offest = 6;
-const int Level_Widtht = 14;    // Ширина уровня в ячейках (кирпичах)
-const int Level_Height = 12;    // Высота уровня в ячейках (кирпичах)
+const int Level_Widtht = 12;    // Ширина уровня в ячейках (кирпичах)
+const int Level_Height = 14;    // Высота уровня в ячейках (кирпичах)
 const int Platform_Y_Pos = 185;
 const int Circle_Size = 7;
 const int Platform_Height = 7;
 const int Ball_Size = 4;
-const int Max_X_Pos = Level_X_Offest + (Cell_Width * Level_Widtht) - Ball_Size;
+const int Max_X_Pos = Level_X_Offest + (Cell_Width * Level_Widtht);
 const int Max_Y_Pos = 199 - Ball_Size;
+const int Border_X_Offset = 6;
+const int Border_Y_Offset = 4;
 
 int Inner_Width = 21;
-int Platform_X_Pos = 0;
+int Platform_X_Pos = Border_X_Offset;
 int Platform_X_Step = Global_scale * 2;
 int Platform_Width = 28;
 
@@ -57,7 +59,7 @@ RECT Level_Rect;
 RECT Ball_Rect, Prev_Ball_Rect;
 
 //Объявление массива уровня
-char Level_01[Level_Widtht][Level_Height] =
+char Level_01[Level_Height][Level_Widtht] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // пустой ряд
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // фиолетовые кирпичи
@@ -89,7 +91,7 @@ void Redraw_Platform()
     Prev_Platform_Rect = Platform_Rect;
 
 
-    Platform_Rect.left = (Platform_X_Pos + Level_X_Offest) * Global_scale;
+    Platform_Rect.left = Platform_X_Pos * Global_scale;
     Platform_Rect.top = Platform_Y_Pos * Global_scale;
     Platform_Rect.right = Platform_Rect.left + Platform_Width * Global_scale;
     Platform_Rect.bottom = Platform_Rect.top + Platform_Height * Global_scale;
@@ -279,8 +281,8 @@ void Draw_Level(HDC hdc)
 {
     int i, j;
 
-    for (i = 0; i < 14; i++)
-        for (j = 0; j < 12; j++)
+    for (i = 0; i < Level_Height; i++)
+        for (j = 0; j < Level_Widtht; j++)
             Draw_Brick(hdc, Level_X_Offest + j * Cell_Width, Level_Y_Offest + i * Cell_Height, (EBrick_Type)Level_01[i][j]);
 }
 //-----------------------------------------------------------------------------------------------------------------------------------------
@@ -331,6 +333,64 @@ void Draw_ball(HDC hdc)
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
+// Отрисовка элемента рамки 
+void Draw_Border(HDC hdc, int x, int y, bool top_border)
+{
+    // Основная линия
+    SelectObject(hdc, Border_Blue_Brush);
+    SelectObject(hdc, Border_Blue_Pen);
+
+    if (top_border)
+        Rectangle(hdc, x * Global_scale, (y + 1) * Global_scale, (x + 4) * Global_scale, (y + 4) * Global_scale);
+    else
+        Rectangle(hdc, (x + 1) * Global_scale, y * Global_scale, (x + 4) * Global_scale, (y + 4) * Global_scale);
+
+    // Леваая кайма
+    SelectObject(hdc, Border_White_Brush);
+    SelectObject(hdc, Border_White_Pen);
+
+    if (top_border)
+        Rectangle(hdc, x * Global_scale, y * Global_scale, (x + 4) * Global_scale, (y + 1) * Global_scale);
+    else 
+        Rectangle(hdc, x * Global_scale, y * Global_scale, (x + 1) * Global_scale, (y + 4) * Global_scale);
+
+    // Перфорация
+    SelectObject(hdc, BG_Brush);
+    SelectObject(hdc, BG_Pen);
+
+    if (top_border)
+        Rectangle(hdc, (x + 2) * Global_scale, (y + 2) * Global_scale, (x + 3) * Global_scale, (y + 3) * Global_scale);
+    else
+        Rectangle(hdc, (x + 2) * Global_scale, (y + 1) * Global_scale, (x + 3) * Global_scale, (y + 2) * Global_scale);
+
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
+//Отрсовка всех границ уровня
+void Draw_Bounds(HDC hdc, RECT& paint_area)
+{
+    int i;
+
+    // 1. Рисует рамку слева
+    for (i = 0; i < 50; i++)
+    {
+        Draw_Border(hdc, 2, 1 + i * 4, false);
+    }
+
+    // 2. Рисует рамку справа
+    for (i = 0; i < 50; i++)
+    {
+        Draw_Border(hdc, 201, 1 + i * 4, false);
+    }
+
+    for (i = 0; i < 50; i++)
+    {
+        Draw_Border(hdc, 3 + i * 4, 0, true);
+    }
+
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
 //Отрисовка экрана игры
 void Draw_Frame(HDC hdc, RECT &paint_area)
 {
@@ -341,7 +401,7 @@ void Draw_Frame(HDC hdc, RECT &paint_area)
         Draw_Level(hdc);
 
     if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
-        Draw_Platform(hdc, Platform_X_Pos + Level_X_Offest, Platform_Y_Pos); 
+        Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos); 
     
    /* int i;
     for (i = 0; i < 16; i++)
@@ -352,23 +412,8 @@ void Draw_Frame(HDC hdc, RECT &paint_area)
 
     if (IntersectRect(&intersection_rect, &paint_area, &Ball_Rect))
         Draw_ball(hdc);
-    // Основная линия
-    SelectObject(hdc, Border_Blue_Brush);
-    SelectObject(hdc, Border_Blue_Pen);
 
-    Rectangle(hdc, 1 * Global_scale, 0 * Global_scale, 4 * Global_scale, 4 * Global_scale);
-
-    // Леваая кайма
-    SelectObject(hdc, Border_White_Brush);
-    SelectObject(hdc, Border_White_Pen);
-
-    Rectangle(hdc, 0 * Global_scale, 0 * Global_scale, 1 * Global_scale, 4 * Global_scale);
-
-    // Перфорация
-    SelectObject(hdc, BG_Brush);
-    SelectObject(hdc, BG_Pen);
-
-    Rectangle(hdc, 2 * Global_scale, 1 * Global_scale, 3 * Global_scale, 2 * Global_scale);
+    Draw_Bounds(hdc, paint_area);
 
 }
 
@@ -380,11 +425,15 @@ int On_Key_Down(EKey_Type key_type)
     {
     case EKT_Left:
         Platform_X_Pos -= Platform_X_Step;
+        if (Platform_X_Pos <= Border_X_Offset)
+            Platform_X_Pos = Border_X_Offset;
         Redraw_Platform();
         break;
 
     case EKT_Right:
         Platform_X_Pos += Platform_X_Step;
+        if (Platform_X_Pos >= Max_X_Pos - Platform_Width + 1)
+            Platform_X_Pos = Max_X_Pos - Platform_Width + 1; 
         Redraw_Platform();
         break;
 
