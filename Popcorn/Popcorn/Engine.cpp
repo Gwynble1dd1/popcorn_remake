@@ -446,32 +446,62 @@ int On_Key_Down(EKey_Type key_type)
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
+//
+void Check_Level_Brick_Hit(int &next_y_pos)
+{
+
+    // Корректируем отражение от кирпичей
+    int i, j;
+    int brick_y_pos = Level_Y_Offest + Level_Height * Cell_Height;
+
+    for (i = Level_Height - 1; i >= 0; i--)
+    {
+        for (j = 0; j < Level_Widtht; j++)
+        {
+            if (Level_01[i][j] == 0)
+                continue;
+
+            if (next_y_pos < brick_y_pos)
+            {
+                next_y_pos = brick_y_pos - (next_y_pos - brick_y_pos);
+                Ball_Direction = -Ball_Direction;
+            }
+        }
+
+        brick_y_pos -= Cell_Height;
+    }
+
+}
+
+//-----------------------------------------------------------------------------------------------------------------------
 //Перемещение шарика
 void Move_Ball()
 {
     int next_x_pos, next_y_pos;
+    int max_x_pos = Max_X_Pos - Ball_Size;
+    int platform_y_pos = Platform_Y_Pos - Ball_Size;
 
     Prev_Ball_Rect = Ball_Rect;
 
     next_x_pos = Ball_X_Pos + int(Ball_Speed * cos(Ball_Direction));
     next_y_pos = Ball_Y_Pos - int(Ball_Speed * sin(Ball_Direction));
 
-    // Корректируем позицию при отражении
-    if (next_x_pos < 0)
+    // Корректируем позицию при отражении от рамки
+    if (next_x_pos < Border_X_Offset)
     {
-        next_x_pos = -next_x_pos;
+        next_x_pos = Level_X_Offest - (next_x_pos - Level_X_Offest);
         Ball_Direction = M_PI - Ball_Direction;
     }
 
-    if (next_y_pos < Level_Y_Offest)
+    if (next_y_pos < Border_Y_Offset)
     {
-        next_y_pos = Level_Y_Offest - (next_y_pos - Level_Y_Offest);
+        next_y_pos = Border_Y_Offset - (next_y_pos - Level_Y_Offest);
         Ball_Direction = -Ball_Direction;
     }
 
-    if (next_x_pos > Max_X_Pos)
+    if (next_x_pos > max_x_pos)
     {
-        next_x_pos = Max_X_Pos - (next_x_pos - Max_X_Pos);       
+        next_x_pos = max_x_pos - (next_x_pos - max_x_pos);
         Ball_Direction = M_PI - Ball_Direction;
     }
 
@@ -481,13 +511,25 @@ void Move_Ball()
         Ball_Direction = M_PI + (M_PI - Ball_Direction);
     }
 
+    // Корректируем отражение от платформы
+
+    if (next_y_pos > platform_y_pos)
+    {
+        if (next_x_pos >= Platform_X_Pos && next_x_pos <= Platform_X_Pos + Platform_Width)
+        next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
+        Ball_Direction = M_PI + (M_PI - Ball_Direction);
+    }
+
+    // Корректируем отражение от кирпичей
+    Check_Level_Brick_Hit(next_y_pos);
+
     // Смещаем шарик
     Ball_X_Pos = next_x_pos;
     Ball_Y_Pos = next_y_pos;
 
 
-    Ball_Rect.left = (Level_X_Offest + Ball_X_Pos) * Global_scale;
-    Ball_Rect.top = (Level_Y_Offest + Ball_Y_Pos) * Global_scale;
+    Ball_Rect.left = Ball_X_Pos * Global_scale;
+    Ball_Rect.top = Ball_Y_Pos * Global_scale;
     Ball_Rect.right = Ball_Rect.left + Ball_Size * Global_scale;
     Ball_Rect.bottom = Ball_Rect.top + Ball_Size * Global_scale;
 
