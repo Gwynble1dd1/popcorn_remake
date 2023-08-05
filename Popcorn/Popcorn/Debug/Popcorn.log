@@ -1,8 +1,0 @@
-﻿  Engine.cpp
-  Main.cpp
-  Создание кода...
-  LINK : не найден или не выполнена сборка D:\Work\Popcorn\Debug\Popcorn.exe при последней инкрементной компоновке; выполняется полная компоновка
-Main.obj : error LNK2019: ссылка на неразрешенный внешний символ "void __cdecl Draw_Frame(struct HDC__ *,struct tagRECT)" (?Draw_Frame@@YAXPAUHDC__@@UtagRECT@@@Z) в функции "long __stdcall WndProc(struct HWND__ *,unsigned int,unsigned int,long)" (?WndProc@@YGJPAUHWND__@@IIJ@Z).
-    Указание на символы, которые определены и могут подойти:
-      "void __cdecl Draw_Frame(struct HDC__ *,struct tagRECT &)" (?Draw_Frame@@YAXPAUHDC__@@AAUtagRECT@@@Z)
-D:\Work\Popcorn\Debug\Popcorn.exe : fatal error LNK1120: неразрешенных внешних элементов: 1
