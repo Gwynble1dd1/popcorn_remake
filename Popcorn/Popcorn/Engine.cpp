@@ -125,7 +125,7 @@ void ABall::Move(AsEngine *engine, ALevel *level)
 //-----------------------------------------------------------------------------------------------------------------------
 // ALevel
 
-// Иницилизация уровня
+// Иницилизация уровня 
 void ALevel::Init()
 {
     Letter_Pen = CreatePen(PS_SOLID, AsEngine::Global_scale, RGB(255, 255, 255));
@@ -195,6 +195,7 @@ void ALevel::Draw_Brick(HDC hdc, int x, int y, EBrick_Type brick_type)
     SelectObject(hdc, pen);
     RoundRect(hdc, x * AsEngine::Global_scale, y * AsEngine::Global_scale, (x + Brick_Width) * AsEngine::Global_scale, (y + Brick_Height) * AsEngine::Global_scale, 2 * AsEngine::Global_scale, 2 * AsEngine::Global_scale);
 }
+
 //-----------------------------------------------------------------------------------------------------------------------------------------
 //Выбираем цвет кирпича
 void ALevel::Set_Brick_Letter_Colors(bool is_switch_color, HPEN &front_pen, HPEN &back_pen, HBRUSH &front_brush, HBRUSH &back_brush)
