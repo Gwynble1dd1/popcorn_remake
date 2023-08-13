@@ -31,6 +31,7 @@ const int Timer_ID = WM_USER + 1;
 //-----------------------------------------------------------------------------------------------------------------------------------------
 class AsEngine;
 class ALevel;
+//-----------------------------------------------------------------------------------------------------------------------------------------
 class ABall
 {
 public:
@@ -38,7 +39,7 @@ public:
 
     void Init();
     void Draw(HDC hdc, RECT &paint_area, AsEngine *engine);
-    void Move(AsEngine *engine, ALevel *level);
+    void Move(AsEngine *engine, ALevel *level, AsPlatform *platform);
 
     HPEN Ball_Pen;
     HBRUSH Ball_Brush;
@@ -88,6 +89,8 @@ private:
 class AsPlatform
 {
 public:
+    AsPlatform();
+    void Init();
     void Redraw_Platform(AsEngine *engine);
     void Draw_Platform(HDC hdc, int x, int y, AsEngine *engine);
 
@@ -96,10 +99,14 @@ public:
 
     RECT Platform_Rect, Prev_Platform_Rect;     //Нынешняя и старая позиция платформы
 
+    int Inner_Width;
+    int Platform_X_Step;
+
     static const int Platform_Height = 7;
     static const int Platform_Y_Pos = 185;
+    static const int Circle_Size = 7;
 
-    HPEN Platform_Circle_Pen, Platform_Inner_Pen;
+    HPEN Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen;
     HBRUSH Platform_Circle_Brush, Platform_Inner_Brush;
 
 };
@@ -137,18 +144,16 @@ private:
     void Draw_Bounds(HDC hdc, RECT &paint_area);
 
     //Для создания кисти и ручки
-    HPEN  Highlight_Pen, Border_Blue_Pen, Border_White_Pen;
+    HPEN Border_Blue_Pen, Border_White_Pen;
     HBRUSH Border_Blue_Brush, Border_White_Brush;
     // Переменные
-    int Inner_Width;
-    int Platform_X_Step;
+
 
     RECT Platform_Rect, Prev_Platform_Rect;     //Нынешняя и старая позиция платформы
 
     ABall Ball;
     ALevel Level;
-
-    static const int Circle_Size = 7;
+    AsPlatform Platform;
 
 };
 

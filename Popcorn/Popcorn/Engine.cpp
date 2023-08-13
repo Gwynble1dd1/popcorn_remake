@@ -65,11 +65,11 @@ void ABall::Draw(HDC hdc, RECT &paint_area, AsEngine *engine)
 
 //-----------------------------------------------------------------------------------------------------------------------
 //Перемещение шарика
-void ABall::Move(AsEngine *engine, ALevel *level)
+void ABall::Move(AsEngine *engine, ALevel *level, AsPlatform *platform)
 {
     int next_x_pos, next_y_pos;
     int max_x_pos = AsEngine::Max_X_Pos - Ball_Size;
-    int platform_y_pos = AsEngine::Platform_Y_Pos - Ball_Size;
+    int platform_y_pos = AsPlatform::Platform_Y_Pos - Ball_Size;
 
     Prev_Ball_Rect = Ball_Rect;
 
@@ -105,7 +105,7 @@ void ABall::Move(AsEngine *engine, ALevel *level)
 
     if (next_y_pos > platform_y_pos)
     {
-        if (next_x_pos >= engine->Platform_X_Pos && next_x_pos <= engine->Platform_X_Pos + engine->Platform_Width)
+        if (next_x_pos >= platform->Platform_X_Pos && next_x_pos <= platform->Platform_X_Pos + platform->Platform_Width)
             next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
         Ball_Direction = M_PI + (M_PI - Ball_Direction);
     }
@@ -348,6 +348,19 @@ void ALevel::Draw_Level(HDC hdc, RECT &paint_area)
 
 // AsPlatform
 //-----------------------------------------------------------------------------------------------------------------------
+AsPlatform::AsPlatform()
+: Inner_Width(21), Platform_X_Pos(AsEngine::Border_X_Offset), Platform_X_Step(AsEngine::Global_scale * 2), Platform_Width(28)
+{
+}
+//-----------------------------------------------------------------------------------------------------------------------
+void AsPlatform::Init()
+{
+    Highlight_Pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
+
+    AsEngine::Create_Pen_Brush(150, 0, 0, Platform_Circle_Pen, Platform_Circle_Brush);
+    AsEngine::Create_Pen_Brush(0, 128, 192, Platform_Inner_Pen, Platform_Inner_Brush);
+}
+//-----------------------------------------------------------------------------------------------------------------------
 //Перерисовка области с платформой для ее движения
 void AsPlatform::Redraw_Platform(AsEngine *engine)
 {
@@ -367,6 +380,9 @@ void AsPlatform::Redraw_Platform(AsEngine *engine)
 //Рисуем платформу
 void AsPlatform::Draw_Platform(HDC hdc,int x, int y, AsEngine *engine)
 {
+    if (! IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
+        return;
+
     SelectObject(hdc, engine->BG_Brush);
     SelectObject(hdc, engine->BG_Pen);
 
@@ -376,20 +392,20 @@ void AsPlatform::Draw_Platform(HDC hdc,int x, int y, AsEngine *engine)
     SelectObject(hdc, Platform_Circle_Brush);
     SelectObject(hdc, Platform_Circle_Pen);
 
-    Ellipse(hdc, x * Global_scale, y * Global_scale, (x + Circle_Size) * Global_scale, (y + Circle_Size) * Global_scale);
-    Ellipse(hdc, (x + Inner_Width) * Global_scale, y * Global_scale, (x + Circle_Size + Inner_Width) * Global_scale, (y + Circle_Size) * Global_scale);
+    Ellipse(hdc, x * AsEngine::Global_scale, y * AsEngine::Global_scale, (x + Circle_Size) * AsEngine::Global_scale, (y + Circle_Size) * AsEngine::Global_scale);
+    Ellipse(hdc, (x + Inner_Width) * AsEngine::Global_scale, y * AsEngine::Global_scale, (x + Circle_Size + Inner_Width) * AsEngine::Global_scale, (y + Circle_Size) * AsEngine::Global_scale);
 
     // 2. Рисуем блик на шарике при помощи Arc
     SelectObject(hdc, Highlight_Pen);
-    Arc(hdc, (x + 1) * Global_scale, (y + 1) * Global_scale, (x + Circle_Size - 1) * Global_scale, (y + Circle_Size - 1) * Global_scale,
-        (x + 1 + 1) * Global_scale, (y + 1) * Global_scale, (x + 1) * Global_scale, (y + 1 + 2) * Global_scale);
+    Arc(hdc, (x + 1) * AsEngine::Global_scale, (y + 1) * AsEngine::Global_scale, (x + Circle_Size - 1) * AsEngine::Global_scale, (y + Circle_Size - 1) * AsEngine::Global_scale,
+        (x + 1 + 1) * AsEngine::Global_scale, (y + 1) * AsEngine::Global_scale, (x + 1) * AsEngine::Global_scale, (y + 1 + 2) * AsEngine::Global_scale);
 
 
     // 3. Рисуем среднюю платформу 
     SelectObject(hdc, Platform_Inner_Brush);
     SelectObject(hdc, Platform_Inner_Pen);
 
-    RoundRect(hdc, (x + 4) * Global_scale, (y + 1) * Global_scale, (x + 4 + Inner_Width - 1) * Global_scale, (y + 1 + 5) * Global_scale, 3 * Global_scale, 3 * Global_scale);
+    RoundRect(hdc, (x + 4) * AsEngine::Global_scale, (y + 1) * AsEngine::Global_scale, (x + 4 + Inner_Width - 1) * AsEngine::Global_scale, (y + 1 + 5) * AsEngine::Global_scale, 3 * AsEngine::Global_scale, 3 * AsEngine::Global_scale);
 
 }
 
@@ -401,7 +417,6 @@ void AsPlatform::Draw_Platform(HDC hdc,int x, int y, AsEngine *engine)
 // AsEngine
 // Конструктор класса AsEngine
 AsEngine::AsEngine()
-: Inner_Width(21), Platform_X_Pos(Border_X_Offset), Platform_X_Step(Global_scale * 2), Platform_Width(28)
 {
 }
 
@@ -411,20 +426,17 @@ void AsEngine::Init_Engine(HWND hwnd)
 {
     Hwnd = hwnd;
 
-    Highlight_Pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
-
 
     Create_Pen_Brush(15, 63, 31, BG_Pen, BG_Brush);
-    Create_Pen_Brush(150, 0, 0, Platform_Circle_Pen, Platform_Circle_Brush);
-    Create_Pen_Brush(0, 128, 192, Platform_Inner_Pen, Platform_Inner_Brush);
     Create_Pen_Brush(255, 255, 255, Ball.Ball_Pen, Ball.Ball_Brush);
     Create_Pen_Brush(255, 255, 255, Border_White_Pen, Border_White_Brush);
     Create_Pen_Brush(85, 255, 255, Border_Blue_Pen, Border_Blue_Brush);
 
     Level.Init();
     Ball.Init();
+    Platform.Init();
 
-    Redraw_Platform();
+    Platform.Redraw_Platform();
 
     SetTimer(hwnd, Timer_ID, 50, 0);
 }
@@ -438,8 +450,7 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 
     Level.Draw_Level(hdc, paint_area);
 
-    if (IntersectRect(&intersection_rect, &paint_area, &Platform_Rect))
-        Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
+    Platform.Draw_Platform(hdc, Platform_X_Pos, Platform_Y_Pos);
 
     /* int i;
      for (i = 0; i < 16; i++)
