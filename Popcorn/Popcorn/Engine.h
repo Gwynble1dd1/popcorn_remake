@@ -36,6 +36,7 @@ class ABall
 public:
     ABall();
 
+    void Init();
     void Draw(HDC hdc, RECT &paint_area, AsEngine *engine);
     void Move(AsEngine *engine, ALevel *level);
 
@@ -82,7 +83,26 @@ private:
     static const int Brick_Width = 15;
     static const int Brick_Height = 7;
 };
+//-----------------------------------------------------------------------------------------------------------------------------------------
 
+class AsPlatform
+{
+public:
+    void Redraw_Platform(AsEngine *engine);
+    void Draw_Platform(HDC hdc, int x, int y, AsEngine *engine);
+
+    int Platform_X_Pos;
+    int Platform_Width;
+
+    RECT Platform_Rect, Prev_Platform_Rect;     //Нынешняя и старая позиция платформы
+
+    static const int Platform_Height = 7;
+    static const int Platform_Y_Pos = 185;
+
+    HPEN Platform_Circle_Pen, Platform_Inner_Pen;
+    HBRUSH Platform_Circle_Brush, Platform_Inner_Brush;
+
+};
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 class AsEngine
@@ -108,39 +128,27 @@ public:
     static const int Global_scale = 3;
     static const int Max_X_Pos = ALevel::Level_X_Offest + (ALevel::Cell_Width * ALevel::Level_Widtht);
     static const int Max_Y_Pos = 199 - ABall::Ball_Size;
-    static const int Platform_Y_Pos = 185;
     static const int Border_X_Offset = 6;
     static const int Border_Y_Offset = 4;
 
-    int Platform_X_Pos;
-    int Platform_Width;
-
-
 private:
-    void Redraw_Platform();
-    void Draw_Platform(HDC hdc, int x, int y);
+
     void Draw_Border(HDC hdc, int x, int y, bool top_border);
     void Draw_Bounds(HDC hdc, RECT &paint_area);
 
-
-
     //Для создания кисти и ручки
-    HPEN Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen, Border_Blue_Pen, Border_White_Pen;
-    HBRUSH Platform_Circle_Brush, Platform_Inner_Brush, Border_Blue_Brush, Border_White_Brush;
+    HPEN  Highlight_Pen, Border_Blue_Pen, Border_White_Pen;
+    HBRUSH Border_Blue_Brush, Border_White_Brush;
     // Переменные
     int Inner_Width;
     int Platform_X_Step;
-
 
     RECT Platform_Rect, Prev_Platform_Rect;     //Нынешняя и старая позиция платформы
 
     ABall Ball;
     ALevel Level;
 
-    // Kонстанты
-
     static const int Circle_Size = 7;
-    static const int Platform_Height = 7;
 
 };
 
