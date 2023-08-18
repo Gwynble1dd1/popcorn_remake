@@ -4,6 +4,8 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
+#include "Border.h"
+
 //-----------------------------------------------------------------------------------------------------------------------
 enum ELetter_Type //создание коллекции падающих букв 
 {
@@ -59,10 +61,10 @@ private:
 class ALevel
 {
 public:
+    ALevel();
     void Init();
     void Check_Level_Brick_Hit(int &next_y_pos, double &ball_direction);
     void Draw(HDC hdc, RECT &paint_area);
-
 
     static const int Level_Widtht = 12;    // Ширина уровня в ячейках (кирпичах)
     static const int Level_Height = 14;    // Высота уровня в ячейках (кирпичах)
@@ -91,6 +93,7 @@ class AsPlatform
 {
 public:
     AsPlatform();
+
     void Init();
     void Redraw(AsEngine *engine);
     void Draw(HDC hdc, AsEngine *engine, RECT &paint_area);
@@ -111,23 +114,13 @@ private:
     HPEN Platform_Circle_Pen, Platform_Inner_Pen, Highlight_Pen;
     HBRUSH Platform_Circle_Brush, Platform_Inner_Brush;
 };
-
 //-----------------------------------------------------------------------------------------------------------------------------------------
-class AsBorder
-{
-public:
-    void Init();
-    void Draw(HDC hdc, RECT &paint_area, AsEngine *engine);
 
-    static const int Border_X_Offset = 6;
-    static const int Border_Y_Offset = 4;
 
-private:
-    void Draw_Element(HDC hdc, int x, int y, bool top_border, AsEngine *engine);
 
-    HPEN Border_Blue_Pen, Border_White_Pen;
-    HBRUSH Border_Blue_Brush, Border_White_Brush;
-};
+
+
+
 //-----------------------------------------------------------------------------------------------------------------------------------------
 class AsEngine
 {
@@ -139,7 +132,6 @@ public:
     int On_Key_Down(EKey_Type key_type);
     int On_Timer();
 
-    static void Create_Pen_Brush(unsigned char r, unsigned char g, unsigned char b, HPEN &pen, HBRUSH &brush);
 
 
     //Хендл окна
