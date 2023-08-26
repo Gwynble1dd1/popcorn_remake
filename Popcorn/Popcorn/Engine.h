@@ -27,18 +27,12 @@ public:
     void Draw_Frame(HDC hdc, RECT &paint_area);
     int On_Key_Down(EKey_Type key_type);
     int On_Timer();
-
-    //Хендл окна
     HWND Hwnd;
 
+private:
     HPEN BG_Pen;
     HBRUSH BG_Brush;
 
-
-    static const int Global_scale = 3;
-
-
-private:
     RECT Platform_Rect, Prev_Platform_Rect;     //Нынешняя и старая позиция платформы
 
     ABall Ball;
