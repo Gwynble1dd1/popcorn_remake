@@ -30,8 +30,7 @@ public:
     HWND Hwnd;
 
 private:
-    HPEN BG_Pen;
-    HBRUSH BG_Brush;
+
 
     RECT Platform_Rect, Prev_Platform_Rect;     //Нынешняя и старая позиция платформы
 

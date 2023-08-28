@@ -6,11 +6,26 @@
 #include "math.h"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
+class AColor
+{
+public:
+    AColor(unsigned char r, unsigned char g, unsigned char b);
+    unsigned char R, G, B;
+
+};
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
 class AsConfig
 {
 public:
+    static void Setup_Colors();
+    static void Create_Pen_Brush(const AColor &color, HPEN &pen, HBRUSH &brush);
     static void Create_Pen_Brush(unsigned char r, unsigned char g, unsigned char b, HPEN &pen, HBRUSH &brush);
    
+    static const AColor BG_Color, Red_Brick_Color, Blue_Brick_Color;
+    static HPEN BG_Pen;
+    static HBRUSH BG_Brush;
+
     static const int Global_scale = 3;
     static const int Border_X_Offset = 6;
     static const int Border_Y_Offset = 4;
@@ -27,6 +42,7 @@ public:
     static const int Max_Y_Pos = 199 - Ball_Size;
     static const int Platform_Y_Pos = 185;
     static const int FPS = 20;
+
 
 
 };

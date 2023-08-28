@@ -29,7 +29,7 @@ char ALevel::Level_01[AsConfig::Level_Height][AsConfig::Level_Widtht] =
 //-----------------------------------------------------------------------------------------------------------------------
 // ALevel
 ALevel::ALevel()
-: Brick_Red_Pen(0), Brick_Blue_Pen(0), Letter_Pen(0), Brick_Red_Brush(0), Brick_Blue_Brush(0), Level_Rect{}
+: Active_Brick(EBT_Red), Brick_Red_Pen(0), Brick_Blue_Pen(0), Letter_Pen(0), Brick_Red_Brush(0), Brick_Blue_Brush(0), Level_Rect{}
 {
 }
 // Иницилизация уровня 
@@ -37,8 +37,8 @@ void ALevel::Init()
 {
     Letter_Pen = CreatePen(PS_SOLID, AsConfig::Global_scale, RGB(255, 255, 255));
 
-    AsConfig::Create_Pen_Brush(255, 85, 85, Brick_Red_Pen, Brick_Red_Brush); // Red_Brick
-    AsConfig::Create_Pen_Brush(85, 255, 255, Brick_Blue_Pen, Brick_Blue_Brush);  // Blue_Brick
+    AsConfig::Create_Pen_Brush(AsConfig::Red_Brick_Color, Brick_Red_Pen, Brick_Red_Brush); // Red_Brick
+    AsConfig::Create_Pen_Brush(AsConfig::Blue_Brick_Color, Brick_Blue_Pen, Brick_Blue_Brush);  // Blue_Brick
 
     Level_Rect.left = AsConfig::Level_X_Offest * AsConfig::Global_scale;
     Level_Rect.top = AsConfig::Level_Y_Offest * AsConfig::Global_scale;

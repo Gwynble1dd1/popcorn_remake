@@ -5,7 +5,7 @@
 // AsEngine
 // Конструктор класса AsEngine
 AsEngine::AsEngine()
-:  Hwnd(0), BG_Pen(0), BG_Brush(0), Prev_Platform_Rect{}, Platform_Rect{}, Border{}
+:  Hwnd(0), Prev_Platform_Rect{}, Platform_Rect{}, Border{}
 {
 }
 
@@ -15,7 +15,7 @@ void AsEngine::Init_Engine(HWND hwnd)
 {
     Hwnd = hwnd;
 
-    AsConfig::Create_Pen_Brush(15, 63, 31, BG_Pen, BG_Brush);
+    AActive_Brick::Setup_Colors();
 
     Level.Init();
     Ball.Init();
@@ -34,7 +34,7 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
 
     Level.Draw(Hwnd, hdc, paint_area);
 
-    Platform.Draw(hdc, BG_Pen, BG_Brush, paint_area);
+    Platform.Draw(hdc, paint_area);
 
     /* int i;
      for (i = 0; i < 16; i++)
@@ -43,8 +43,8 @@ void AsEngine::Draw_Frame(HDC hdc, RECT &paint_area)
          Draw_Brick_Letter(hdc, 20 + i * Cell_Width * Global_scale, 290, EBT_Red, ELT_None, i);
      }*/
 
-    Ball.Draw(hdc, paint_area, BG_Pen, BG_Brush);
-    Border.Draw(hdc, paint_area, BG_Pen, BG_Brush);
+    Ball.Draw(hdc, paint_area);
+    Border.Draw(hdc, paint_area);
 
 }
 
